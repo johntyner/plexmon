@@ -3,11 +3,16 @@
 import collections
 import dotenv
 import requests
-import json
 
 # Suppress only the single warning from urllib3 needed.
 from urllib3.exceptions import InsecureRequestWarning
 requests.packages.urllib3.disable_warnings(category=InsecureRequestWarning)
+
+def web_request(method, url, **kwargs):
+    s = requests.Session()
+    s.verify = False
+
+    return getattr(s, method)(url, **kwargs)
 
 defcfg = collections.OrderedDict()
 defcfg['plex_addr'] = 'https://localhost:32400'
@@ -22,11 +27,8 @@ for k in defcfg:
         config[k] = defcfg[k]
 
 try:
-    plex_session = requests.Session()
-    plex_session.verify=False
-
-    r = plex_session.get(
-        config['plex_addr'] + '/',
+    r = web_request(
+        'get', config['plex_addr'] + '/',
         headers={
             'X-Plex-Token': config['plex_token']
         })
@@ -35,13 +37,10 @@ try:
 except Exception as e:
     print('Restarting Plex Media Server...')
 
-    truenas_session = requests.Session()
-    truenas_session.verify=False
-
-    r = truenas_session.post(
-        config['truenas_addr'] + '/api/v2.0/jail/restart',
+    web_request(
+        'post', config['truenas_addr'] + '/api/v2.0/jail/restart',
         headers={
             'Authorization': 'Bearer ' + config['truenas_apikey'],
             'Content-Type': 'application/json',
         },
-        data=json.dumps(config['plex_jail']))
+        data='"' + config['plex_jail'] + '"')
