@@ -14,12 +14,13 @@ def web_request(method, url, **kwargs):
 
     return getattr(s, method)(url, **kwargs)
 
-defcfg = collections.OrderedDict()
-defcfg['plex_addr'] = 'https://localhost:32400'
-defcfg['plex_token'] = ''
-defcfg['truenas_addr'] = 'https://localhost'
-defcfg['truenas_apikey'] = ''
-defcfg['plex_jail'] = 'plexmediaserver'
+defcfg = collections.OrderedDict([
+    ('plex_addr', 'https://localhost:32400'),
+    ('plex_token', ''),
+    ('plex_jail', 'plexmediaserver'),
+    ('truenas_addr', 'https://localhost'),
+    ('truenas_apikey', ''),
+])
 
 config = dotenv.dotenv_values('plexmon.conf')
 for k in defcfg:
